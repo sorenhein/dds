@@ -33,11 +33,15 @@ bool SameBoard(
   const unsigned index2);
 
 
+#include <sstream>
 void SolveSingleCommon(
   const int thrId,
   const int bno)
 {
   futureTricks fut;
+
+  string tag = to_string(thrId) + ", " + to_string(bno);
+  PrintToDebugFile("SSC start, " + tag, thrId);
 
   START_THREAD_TIMER(thrId);
   int res = SolveBoard(
@@ -48,6 +52,13 @@ void SolveSingleCommon(
               &fut,
               thrId);
   END_THREAD_TIMER(thrId);
+
+  char line[80];
+  ErrorMessage(res, line);
+  string resstr(line);
+
+  string stall = "SSC end, " + tag + ", " + resstr;
+  PrintToDebugFile(stall, thrId);
 
   if (res == 1)
     param.solvedp->solvedBoard[bno] = fut;

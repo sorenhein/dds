@@ -506,11 +506,17 @@ int System::RunThreadsSTLIMPL()
         err = true;
     }
 
+    if (thrId >= numThreads)
+      err = true;
+
     (* CallbackSingleList[runCat])(thrId, bno);
   });
 
   if (err)
+  {
+    cout << "Too many threads" << endl;
     return RETURN_THREAD_INDEX;
+  }
 
   (* CallbackCopyList[runCat])(crossrefs);
 #endif

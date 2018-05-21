@@ -810,7 +810,17 @@ int AnalyseLaterBoard(
   {
     thrp->moves.MakeSpecific(* move, trick + 1, 3);
     unsigned short int ourWinRanks[DDS_SUITS]; // Unused here
-    Make3(&thrp->lookAheadPos, ourWinRanks, iniDepth + 1, move, thrp);
+    bool fail =
+      Make3(&thrp->lookAheadPos, ourWinRanks, iniDepth + 1, move, thrp);
+    if (fail)
+    {
+      stringstream ss;
+      ss << "Failed in AnylyseLaterBoard" << endl;
+      ss << "leadHand " << leadHand << endl;
+      ss << "hint " << hint << endl;
+      ss << "hintDir " << hintDir << endl;
+      exit(1);
+    }
   }
   else if (handRelFirst == 1)
   {
@@ -1195,5 +1205,24 @@ void LastTrickWinner(
   leadSuit = lastTrickSuit[hp];
   leadSideWins = ((handToPlay == maxHand ||
     partner[handToPlay] == maxHand) ? 1 : 0);
+}
+
+
+void ClearDebugFile(const int thrId)
+{
+  const string fn = "ssc" + to_string(thrId) + ".txt";
+  remove(fn.c_str());
+}
+
+
+void PrintToDebugFile(
+  const string& str,
+  const int thrId)
+{
+  ofstream fout;
+  const string fn = "ssc" + to_string(thrId) + ".txt";
+  fout.open(fn, std::ios_base::app);
+  fout << str << endl;
+  fout.close();
 }
 

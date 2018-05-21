@@ -59,7 +59,7 @@ void Make2(
   const int depth,
   moveType const * mply);
 
-void Make3(
+bool Make3(
   pos * posPoint,
   unsigned short trickCards[DDS_SUITS],
   const int depth,

@@ -15,6 +15,7 @@
 #include "System.h"
 #include "Scheduler.h"
 #include "debug.h"
+#include "SolverIF.h"
 
 
 System sysdep;
@@ -166,6 +167,9 @@ void STDCALL SetResources(
   if (noOfSmallThreads > 0)
     memory.Resize(static_cast<unsigned>(noOfThreads),
       DDS_TT_SMALL, THREADMEM_SMALL_DEF_MB, THREADMEM_SMALL_MAX_MB);
+
+  for (int i = 0; i < noOfThreads; i++)
+    ClearDebugFile(i);
 
   InitDebugFiles();
 

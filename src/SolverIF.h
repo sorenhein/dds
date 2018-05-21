@@ -36,4 +36,11 @@ int AnalyseLaterBoard(
   const int hintDir,
   futureTricks * futp);
 
+void ClearDebugFile(
+  const int thrId);
+
+void PrintToDebugFile(
+  const string& str,
+  const int thrId);
+
 #endif

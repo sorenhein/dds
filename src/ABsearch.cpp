@@ -665,7 +665,14 @@ bool ABsearch3(
     if (mply == NULL)
       break;
 
-    Make3(posPoint, makeWinRank, depth, mply, thrp);
+    bool fail = Make3(posPoint, makeWinRank, depth, mply, thrp);
+    if (fail)
+    {
+      string st = "Failed in ABsearch3, depth " + to_string(depth) +
+        "\n";
+      cout << st;
+      exit(1);
+    }
 
     thrp->trickNodes++; // As handRelFirst == 0
 
@@ -770,7 +777,7 @@ void Make2(
 }
 
 
-void Make3(
+bool Make3(
   pos * posPoint,
   unsigned short trickCards[DDS_SUITS],
   const int depth,
@@ -779,7 +786,16 @@ void Make3(
 {
   int firstHand = posPoint->first[depth];
 
-  const trickDataType& data = thrp->moves.GetTrickData((depth + 3) >> 2);
+  bool failFlag;
+  const trickDataType& data = thrp->moves.GetTrickData((depth + 3) >> 2,
+    failFlag);
+
+  if (failFlag)
+  {
+    string st = "Failed in Make3, depth " + to_string(depth) + "\n";
+    cout << st;
+    return true;
+  }
 
   posPoint->first[depth - 1] = handId(firstHand, data.relWinner);
   /* Defines who is first in the next move */
@@ -831,6 +847,7 @@ void Make3(
 
     }
   }
+  return false;
 }
 
 
@@ -841,7 +858,16 @@ void Make3Simple(
   moveType const * mply,
   ThreadData * thrp)
 {
-  const trickDataType& data = thrp->moves.GetTrickData((depth + 3) >> 2);
+  bool failFlag;
+  const trickDataType& data = thrp->moves.GetTrickData((depth + 3) >> 2,
+    failFlag);
+
+  if (failFlag)
+  {
+    string st = "Failed in Make3Simple, depth " + to_string(depth) + "\n";
+    cout << st;
+    exit(1);
+  }
 
   int firstHand = posPoint->first[depth];
 

@@ -9,6 +9,7 @@
 
 
 #include "Memory.h"
+#include "SolverIF.h"
 
 
 Memory::Memory()
@@ -95,6 +96,14 @@ void Memory::Resize(
 
 ThreadData * Memory::GetPtr(const unsigned thrId)
 {
+  string st = "Memory::GetPtr " + to_string(thrId) + 
+    ", nThreads " + to_string(nThreads);
+  if (thrId >= nThreads)
+  {
+    st += ", ERROR";
+  }
+  PrintToDebugFile(st, thrId);
+
   return memory[thrId];
 }
 

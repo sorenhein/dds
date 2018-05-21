@@ -238,7 +238,9 @@ class Moves
       const int trick,
       const int relHand);
 
-    const trickDataType& GetTrickData(const int tricks);
+    const trickDataType& GetTrickData(
+      const int tricks,
+      bool& failFlag);
 
     void Sort(
       const int tricks,
@@ -259,6 +261,12 @@ class Moves
     void PrintTrickDetails(ofstream& fout) const;
 
     void PrintFunctionStats(ofstream& fout) const;
+
+    bool CheckSum() const;
+
+    void DumpState(const string& str, const int trick) const;
+
+    void DumpTrackEntry(const int tricks) const;
 };
 
 #endif

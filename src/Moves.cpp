@@ -1662,6 +1662,12 @@ void Moves::MakeSpecific(
 {
   trackp = &track[trick];
 
+  if (! Moves::CheckSum())
+  {
+    Moves::DumpState("MakeSpecific start", trick);
+    Moves::DumpTrackEntry(trick);
+  }
+
   if (relHand == 0)
   {
     trackp->move[0].suit = ourMply.suit;
@@ -1719,6 +1725,12 @@ void Moves::MakeSpecific(
       newp->removedRanks[s] |= bitMapRank[r];
     }
   }
+
+  if (! Moves::CheckSum())
+  {
+    Moves::DumpState("MakeSpecific end", trick);
+    Moves::DumpTrackEntry(trick);
+  }
 }
 
 
@@ -1729,6 +1741,12 @@ moveType const * Moves::MakeNext(
 {
   // Find moves that are >= ourWinRanks[suit], but allow one
   // "small" move per suit.
+
+  if (! Moves::CheckSum())
+  {
+    Moves::DumpState("MakeNext start", trick);
+    Moves::DumpTrackEntry(trick);
+  }
 
   int * lwp = track[trick].lowestWin[relHand];
   movePlyType& list = moveList[trick][relHand];
@@ -1827,6 +1845,12 @@ moveType const * Moves::MakeNext(
     }
   }
 
+  if (! Moves::CheckSum())
+  {
+    Moves::DumpState("MakeNext end", trick);
+    Moves::DumpTrackEntry(trick);
+  }
+
   list.current++;
   return currp;
 }
@@ -1837,6 +1861,12 @@ moveType const * Moves::MakeNextSimple(
   const int relHand)
 {
   // Don't worry about small moves. Why not, actually?
+
+  if (! Moves::CheckSum())
+  {
+    Moves::DumpState("MakeNextSimple start", trick);
+    Moves::DumpTrackEntry(trick);
+  }
 
   movePlyType& list = moveList[trick][relHand];
   if (list.current > list.last)
@@ -1889,6 +1919,12 @@ moveType const * Moves::MakeNextSimple(
   if (relHand == 3)
   {
     track[trick-1].leadHand = (trackp->leadHand + trackp->high[3]) % 4;
+  }
+
+  if (! Moves::CheckSum())
+  {
+    Moves::DumpState("MakeNextSimple end", trick);
+    Moves::DumpTrackEntry(trick);
   }
 
   list.current++;
@@ -1949,7 +1985,9 @@ void Moves::Reward(
 }
 
 
-const trickDataType& Moves::GetTrickData(const int tricks)
+const trickDataType& Moves::GetTrickData(
+  const int tricks,
+  bool& failFlag)
 {
   trickDataType& data = track[tricks].trickData;
   for (int s = 0; s < DDS_SUITS; s++)
@@ -1964,14 +2002,75 @@ const trickDataType& Moves::GetTrickData(const int tricks)
   if (sum != 4)
   {
     cout << "Sum " << sum << " is not four" << endl;
-    exit(1);
+    Moves::DumpState("GetTrickData", tricks);
+    Moves::DumpTrackEntry(tricks);
+    for (int i = 0; i <= currTrick; i++)
+      Moves::DumpTrackEntry(i);
+    failFlag = true;
+    return data;
   }
 
   data.bestRank = trackp->move[3].rank;
   data.bestSuit = trackp->move[3].suit;
   data.bestSequence = trackp->move[3].sequence;
   data.relWinner = trackp->high[3];
+  failFlag = false;
   return data;
+}
+
+
+bool Moves::CheckSum() const
+{
+  int playCount[DDS_SUITS];
+  for (int s = 0; s < DDS_SUITS; s++)
+    playCount[s] = 0;
+  for (int relh = 0; relh < DDS_HANDS; relh++)
+    playCount[ trackp->playSuits[relh] ]++;
+
+  int sum = 0;
+  for (int s = 0; s < DDS_SUITS; s++)
+    sum += playCount[s];
+
+  return (sum == 4);
+}
+
+
+void Moves::DumpState(const string& str, const int trick) const
+{
+  stringstream st;
+  st << str << ", trick " << trick << endl;
+  st << setw(14) << left << "leadHand " << leadHand << endl;
+  st << setw(14) << left << "leadSuit " << leadSuit << endl;
+  st << setw(14) << left << "currHand " << currHand << endl;
+  st << setw(14) << left << "currSuit " << currSuit << endl;
+  st << setw(14) << left << "currTrick " << currTrick << endl;
+  st << setw(14) << left << "trump " << trump << endl;
+  st << setw(14) << left << "suit " << suit << endl;
+  st << setw(14) << left << "numMoves " << numMoves << endl;
+  st << setw(14) << left << "lastNumMoves " << lastNumMoves << endl;
+  st << endl;
+  cout << st.str();
+}
+
+
+void Moves::DumpTrackEntry(const int tricks) const
+{
+  stringstream st;
+  st << "Trick " << tricks << endl;
+  st << setw(14) << left << "leadHand" << trackp->leadHand << endl;
+  st << setw(14) << left << "leadSuit" << trackp->leadSuit << endl;
+
+  st << setw(4) << "No." << 
+    setw(12) << "playSuits" <<
+    setw(12) << "playRanks" << endl;
+  for (int h = 0; h < DDS_HANDS; h++)
+  {
+    st << setw(4) << h <<
+      setw(12) << trackp->playSuits[h] <<
+      setw(12) << trackp->playRanks[h] << endl;
+  }
+  st << endl;
+  cout << st.str();
 }
 
 
